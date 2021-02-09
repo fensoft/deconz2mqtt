@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 
 import websocket, paho.mqtt.client, threading, requests, json, argparse, logging
 
@@ -26,7 +26,7 @@ def flatten_json(nested_json, separator='/'):
       out[name[:-1]] = x
   flatten(nested_json)
   return out
-    
+
 def on_websocket_message(ws, message):
   websocket_logger.debug(message)
   msg = json.loads(message)
@@ -87,7 +87,7 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("--deconz-websocket", dest="deconz_websocket", help="websocket url to deconz (ws://127.0.0.1:443)", required=True)
   parser.add_argument("--mqtt", help="mqtt ip (127.0.0.1)", required=True)
-  parser.add_argument("--deconz-rest", dest="deconz_rest", help="deconz rest url (http://1270.0.0.1/api/KEY)", required=True)
+  parser.add_argument("--deconz-rest", dest="deconz_rest", help="deconz rest url (http://127.0.0.1/api/KEY)", required=True)
   parser.add_argument("--mqtt-prefix", dest="mqtt_prefix", help="mqtt prefix", required=True)
   args = parser.parse_args()
   websocket = websocket.WebSocketApp(args.deconz_websocket, on_message = on_websocket_message, on_error = on_websocket_error, on_close = on_websocket_close, on_open = on_websocket_open)
