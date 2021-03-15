@@ -1,15 +1,22 @@
 #!/usr/bin/env python
 
-import websocket, paho.mqtt.client, threading, requests, json, argparse, logging
+import argparse
+import json
+import logging
+import paho.mqtt.client
+import requests
+import threading
+import websocket
 
 logging.basicConfig(level=logging.DEBUG)
-#websocket.enableTrace(True)
+# websocket.enableTrace(True)
 
 mqtt_logger = logging.getLogger('mqtt')
 websocket_logger = logging.getLogger('websocket')
 
 name2id = {}
 id2name = {}
+
 
 def flatten_json(nested_json, separator='/'):
   out = {}
@@ -27,6 +34,7 @@ def flatten_json(nested_json, separator='/'):
   flatten(nested_json)
   return out
 
+
 def on_websocket_message(ws, message):
   websocket_logger.debug(message)
   msg = json.loads(message)
@@ -36,16 +44,20 @@ def on_websocket_message(ws, message):
       for key, val in flatten_json(msg['state']).items():
         mqtt.publish("{}/{}/{}/state/{}".format(args.mqtt_prefix, msg['r'], name, key), val)
   else:
-    websocket_logger.error('unhandled:' + msg)
+    websocket_logger.info('unhandled:' + msg)
+
 
 def on_websocket_error(ws, error):
   websocket_logger.error(str(error))
 
+
 def on_websocket_close(ws):
-  websocket_logger.error("connection closed")
+  websocket_logger.info("connection closed")
+
 
 def on_websocket_open(ws):
-  websocket_logger.error("connected to websocket")
+  websocket_logger.info("connected to websocket")
+
 
 def on_mqtt_connect(client, userdata, flags, rc):
   mqtt_logger.info("Connected to mqtt")
@@ -60,6 +72,7 @@ def on_mqtt_connect(client, userdata, flags, rc):
         id2name[type][id] = node['name']
         name2id[type][node['name']] = id
   mqtt.subscribe("{}/#".format(args.mqtt_prefix))
+
 
 def on_mqtt_message(client, userdata, msg):
   try:
@@ -82,6 +95,7 @@ def on_mqtt_message(client, userdata, msg):
         mqtt.error("type {} not handled".format(type))
   except:
     mqtt.error("error: {}".format(str(msg.payload)))
+
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
